@@ -1,19 +1,28 @@
-import express from 'express'
+// Importar Express
+import express from "express";
 
-const router = express.Router()
+// Crear el enrutador
+const router = express.Router();
 
+// Variables para llevar el contador
 let counter = 0;
-const numbers = []
+const numbers = [];
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
+// Ruta principal
+router.get("/", (req, res, _next) => {
+  // Incrementar el contador
   counter++;
+
+  // Guardar el número actual
   numbers.push(counter);
-  res.render('index', { 
-    title: 'jonathan diecio',
+
+  // Renderizar la página principal
+  res.render("index", {
+    title: "jonathan dieigna",
     counter,
-    numbers
+    numbers,
   });
 });
 
+// Exportar el enrutador
 export default router;
