@@ -1,0 +1,8 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "editor.fontSize": 14,
+  "terminal.integrated.fontSize": 14,
+  "editor.tabSize": 2
+}
