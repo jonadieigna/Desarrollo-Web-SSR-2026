@@ -57,10 +57,7 @@ export default defineConfig([
       // ESM en Node exige la extensión .js en imports relativos
       'import-x/extensions': ['error', 'ignorePackages'],
       'import-x/no-unresolved': ['error', { ignore: ['^#'] }],
-      'import-x/no-extraneous-dependencies': [
-        'error',
-        { devDependencies: [] },
-      ],
+      'import-x/no-extraneous-dependencies': ['error', { devDependencies: [] }],
     },
   },
   // Siempre al final: desactiva reglas que chocan con Prettier
