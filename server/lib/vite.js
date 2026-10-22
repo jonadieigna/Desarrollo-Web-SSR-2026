@@ -5,11 +5,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 
 // Creando las variables de rutas
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 /**
  * Helper para Handlebars para que genere las etiquetas de Vite
@@ -21,8 +20,7 @@ export function viteAssets() {
   const isDev = process.env.NODE_ENV !== 'production';
 
   // Rescatando la URL del servidor de desarrollo
-  const devServer =
-    process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+  const devServer = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 
   // Si estamos en modo desarrollo
   if (isDev) {
@@ -70,7 +68,5 @@ export function viteAssets() {
 }
 
 export function registerViteHelper(hbs) {
-  hbs.registerHelper('viteAssets', () => {
-    return new hbs.SafeString(viteAssets());
-  });
+  hbs.registerHelper('viteAssets', () => new hbs.SafeString(viteAssets()));
 }

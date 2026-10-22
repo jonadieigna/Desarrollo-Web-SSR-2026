@@ -1,5 +1,5 @@
 // Importar Express
-import express from "express";
+import express from 'express';
 
 // Crear el enrutador
 const router = express.Router();
@@ -9,16 +9,16 @@ let counter = 0;
 const numbers = [];
 
 // Ruta principal
-router.get("/", (req, res, _next) => {
+router.get('/', (req, res, _next) => {
   // Incrementar el contador
-  counter++;
+  counter += 1;
 
   // Guardar el número actual
   numbers.push(counter);
 
   // Renderizar la página principal
-  res.render("index", {
-    title: "jonathan dieigna",
+  res.render('index', {
+    title: 'jonathan dieigna',
     counter,
     numbers,
   });

@@ -1,3 +1,3 @@
-import'./styles/main.css'
+import './main.css';
 
-console.log("😎Vite⚡ + EXPRESS 🚂 WORKING!!")
+console.log('😎Vite⚡ + EXPRESS 🚂 WORKING!!');
