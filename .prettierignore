@@ -1,2 +1,8 @@
-public/assets/**
-public/index.html
+dist
+node_modules
+package-lock.json
+.devcontainer
+.vscode
+.github
+*.config.js
+*.hbs

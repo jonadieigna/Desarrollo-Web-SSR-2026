@@ -6,7 +6,6 @@ import prettier from 'eslint-config-prettier/flat';
 
 const { base } = rules;
 
-// Reglas de Airbnb (base) sin las de formato: de eso se encarga Prettier
 const airbnbBase = [
   base.bestPractices,
   base.errors,
@@ -39,12 +38,10 @@ export default defineConfig([
     },
   },
   ...airbnbBase,
-  // Back-end, configuración de Vite
   {
     files: ['server/**/*.{js,mjs}'],
     languageOptions: { globals: { ...globals.node } },
   },
-  // Front-end
   {
     files: ['src/**/*.{js,mjs}', 'public/**/*.{js,mjs}'],
     languageOptions: { globals: { ...globals.browser } },
@@ -53,13 +50,13 @@ export default defineConfig([
     rules: {
       'no-underscore-dangle': ['error', { allow: ['__filename', '__dirname'] }],
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      // Los alias "#server/*" y devDependencies de configuración
-      // ESM en Node exige la extensión .js en imports relativos
       'import-x/extensions': ['error', 'ignorePackages'],
       'import-x/no-unresolved': ['error', { ignore: ['^#'] }],
-      'import-x/no-extraneous-dependencies': ['error', { devDependencies: [] }],
+      'import-x/no-extraneous-dependencies': [
+        'error',
+        { devDependencies: [] },
+      ],
     },
   },
-  // Siempre al final: desactiva reglas que chocan con Prettier
   prettier,
 ]);
