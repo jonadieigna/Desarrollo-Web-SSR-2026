@@ -1,23 +1,19 @@
-// 1. Importando el core de winston
 import winston, { format } from 'winston';
-
-// 3. Importando bibliotecas de Node.js
 import path from 'node:path';
 import fs from 'node:fs';
-
-// 6. Importando plug-in de winston para rotación diaria
 import DailyRotateFile from 'winston-daily-rotate-file';
 
-// 12 - 14. Creando variable del directorio raíz y carpeta de logs
+// Directorio raíz y creación síncrona de la carpeta de logs
 const rootdir = path.resolve(process.cwd());
 const logsDir = path.join(rootdir, 'logs');
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
 }
-// Desestructuración de funciones útiles de format
+
+// Desestructuración de funciones de formato
 const { combine, timestamp, label, printf, colorize, uncolorize, json, prettyPrint } = format;
 
-// Formato personalizado para la Consola
+// Formatos personalizados
 const myConsoleFormat = combine(
   colorize({ all: true }),
   label({ label: '🌐' }),
@@ -25,10 +21,9 @@ const myConsoleFormat = combine(
   printf((info) => `${info.level} -> ${info.label} -> [${info.timestamp}] -> ${info.message}`),
 );
 
-// Formato personalizado para Archivos (JSON y sin colorización)
 const myFileFormat = combine(uncolorize(), timestamp({ format: 'DD-MM-YYYY HH:mm:ss' }), json());
 
-// 11 al 15: Configuración de Transportes dentro del objeto 'options'
+// Configuración de Transportes
 const options = {
   errorFile: {
     level: 'error',
@@ -60,7 +55,7 @@ const options = {
   },
 };
 
-// 16 al 20: Instanciación oficial del Logger y Manejadores de Crisis
+// Instanciación del Logger y Manejadores de Crisis
 const logger = winston.createLogger({
   transports: [
     new DailyRotateFile(options.dailyRotateFile),
@@ -81,5 +76,5 @@ const logger = winston.createLogger({
   exitOnError: false,
 });
 
-// 21 y 22: Exportación del módulo
+// Exportación del módulo
 export default logger;
