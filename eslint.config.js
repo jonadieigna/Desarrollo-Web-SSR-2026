@@ -48,6 +48,7 @@ export default defineConfig([
   },
   {
     rules: {
+      'no-console': ['error', { allow: ['warn', 'error'] }],
       'no-underscore-dangle': ['error', { allow: ['__filename', '__dirname'] }],
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'import-x/extensions': ['error', 'ignorePackages'],
