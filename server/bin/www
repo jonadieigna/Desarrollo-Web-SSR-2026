@@ -1,104 +1,55 @@
-#!/usr/bin/env node
+import express from 'express';
+import logger from '../lib/winston.js';
 
-/**
- * Module dependencies.
- */
+const indexrouter = express.Router();
 
-import app from '../app.js';
+let counter = 0;
+const numbers = [];
 
-// Importando Debug
-import createDebug from 'debug';
-import http from 'node:http';
+/* GET home page. */
+indexrouter.get('/', (_req, res, _next) => {
+  counter += 1;
+  numbers.push(counter);
+  res.render('index', {
+    title: 'jonadieigna',
+    counter,
+    numbers,
+  });
+});
 
-// Creación del objeto Debug
-const debug = createDebug('dwssr-2026b:server');
+// Rutas para prueba de logs
+indexrouter.get('/test-logs', (_req, res) => {
+  logger.error('Esto es un mensaje de ERROR - algo falló');
+  logger.warn('Esto es un mensaje de WARN - algo podría estar mal');
+  logger.info('Esto es un mensaje de INFO - operación exitosa');
+  logger.http('Esto es un mensaje de HTTP - petición recibida');
+  logger.debug('Esto es un mensaje de DEBUG - detalle de depuración');
 
-/**
- * Get port from environment and store in Express.
- */
+  res.json({
+    message: 'Logs de prueba generados. Revisa la consola y los archivos en /logs',
+    files: [
+      'logs/app-YYYY-MM-DD.log -> DailyRotateFile (info+warn+error en JSON)',
+      'logs/app-readable.log -> Formato legible (info+warn+error)',
+      'logs/error.log -> Solo errores',
+    ],
+  });
+});
 
-const port = normalizePort(process.env.PORT || '3000');
+// Rutas de prueba para exceptions y rejections
+if (process.env.NODE_ENV !== 'production') {
+  indexrouter.get('/test-exception', (_req, res) => {
+    res.json({ message: 'Excepcion lanzada. Revisa logs/exceptions.log' });
+    setTimeout(() => {
+      throw new Error('Excepcion de prueba no capturada');
+    }, 100);
+  });
 
-app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-const server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port, '0.0.0.0');
-
-server.on('error', onError);
-server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  const port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
+  indexrouter.get('/test-rejection', (_req, res) => {
+    res.json({
+      message: 'Promesa rechazada, revisa archivo logs/rejections.log',
+    });
+    Promise.reject(new Error('Promesa rechazada de prueba sin catch'));
+  });
 }
 
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(`${bind} requires elevated privileges`);
-      process.exit(1);
-      break;
-
-    case 'EADDRINUSE':
-      console.error(`${bind} is already in use`);
-      process.exit(1);
-      break;
-
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  const addr = server.address();
-
-  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
-
-  debug(`💻 Listening on ${bind}`);
-
-  console.log('');
-  console.log('======================================');
-  console.log('🚀 Servidor iniciado correctamente');
-  console.log(`🌐 http://localhost:${addr.port}`);
-  console.log('======================================');
-  console.log('');
-}
+export default indexrouter;
