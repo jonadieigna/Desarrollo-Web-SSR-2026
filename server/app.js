@@ -1,80 +1,59 @@
-import winston, { format } from 'winston';
+import createError from 'http-errors';
+import express from 'express';
 import path from 'node:path';
-import fs from 'node:fs';
-import DailyRotateFile from 'winston-daily-rotate-file';
+import { fileURLToPath } from 'node:url';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
+import createDebug from 'debug';
+import indexRouter from '#routes/index.js';
+import usersRouter from '#routes/users.js';
+import configureHandlebars from './lib/handlebars.js';
+import logger from './lib/winston.js';
 
-// Directorio raíz y creación síncrona de la carpeta de logs
-const rootdir = path.resolve(process.cwd());
-const logsDir = path.join(rootdir, 'logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const debug = createDebug('dwssr-2026b:server');
+
+debug('Creando backend');
+
+const app = express();
+
+// Configurar el motor de vistas con handlebars y express-handlebars
+configureHandlebars(app);
+
+// Configurar middlewares de la aplicación
+app.use(
+  morgan('dev', {
+    stream: {
+      write: (msg) => logger.info(msg.trim()),
+    },
+  }),
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '..', 'dist')));
 }
 
-// Desestructuración de funciones de formato
-const { combine, timestamp, label, printf, colorize, uncolorize, prettyPrint } = format;
+debug('Creando servidor de archivos estáticos');
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// Formatos personalizados
-const myConsoleFormat = combine(
-  colorize({ all: true }),
-  label({ label: '🌐' }),
-  timestamp({ format: 'DD-MM-YYYY HH:mm:ss' }),
-  printf((info) => `${info.level} -> ${info.label} -> [${info.timestamp}] -> ${info.message}`),
-);
+debug('Registrando rutas');
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
 
-// Formato para los archivos JSON
-const myFileFormat = combine(uncolorize(), timestamp(), format.json());
-
-// Construyendo y configurando transportes
-const options = {
-  errorFile: {
-    level: 'error',
-    filename: path.join(logsDir, 'error.log'),
-    maxsize: 5242880, // 5MB
-    maxFiles: 2,
-    format: myFileFormat,
-  },
-  console: {
-    level: 'debug',
-    handleExceptions: true,
-    format: myConsoleFormat,
-  },
-  readableFile: {
-    level: 'info',
-    filename: path.join(logsDir, 'readable.log'),
-    maxsize: 5242880, // 5MB
-    maxFiles: 2,
-    format: combine(uncolorize(), timestamp({ format: 'DD-MM-YYYY HH:mm:ss' }), prettyPrint()),
-  },
-  dailyRotateFile: {
-    level: 'info',
-    filename: path.join(logsDir, 'app-%DATE%.log'),
-    datePattern: 'YYYY-MM-DD',
-    zippedArchive: true,
-    maxsize: 5242880, // 5MB
-    maxFiles: 2,
-    format: myFileFormat,
-  },
-};
-
-// Creando el logger
-const logger = winston.createLogger({
-  transports: [
-    new DailyRotateFile(options.dailyRotateFile),
-    new winston.transports.File(options.readableFile),
-    new winston.transports.File(options.errorFile),
-    new winston.transports.Console(options.console),
-  ],
-  exceptionHandlers: [
-    new winston.transports.File({
-      filename: path.join(logsDir, 'exceptions.log'),
-    }),
-  ],
-  rejectionHandlers: [
-    new winston.transports.File({
-      filename: path.join(logsDir, 'rejections.log'),
-    }),
-  ],
-  exitOnError: false,
+app.use((req, res, next) => {
+  next(createError(404));
 });
 
-export default logger;
+app.use((err, req, res, _next) => {
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+export default app;

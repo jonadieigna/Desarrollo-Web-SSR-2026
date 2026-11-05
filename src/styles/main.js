@@ -1,3 +1,3 @@
 import './main.css';
 
-console.log('😎Vite⚡ + EXPRESS 🚂 WORKING!!');
+console.warn('😎Vite⚡ + EXPRESS 🚂 WORKING!!');
