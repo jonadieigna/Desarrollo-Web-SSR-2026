@@ -1,22 +1,20 @@
-import path, { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { create as createHbsEngine } from 'express-handlebars';
+import { engine } from 'express-handlebars';
+import path from 'node:path';
 import { registerViteHelper } from './vite.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 export default function configureHandlebars(app) {
-  const exphbs = createHbsEngine({
-    extname: '.hbs',
-    defaultLayout: 'main',
-    layoutsDir: path.join(__dirname, '..', 'views', 'layouts'),
-    partialsDir: path.join(__dirname, '..', 'views', 'partials'),
-  });
-
-  registerViteHelper(exphbs);
-
-  app.engine('hbs', exphbs.engine);
-  app.set('view engine', 'hbs');
-  app.set('views', path.join(__dirname, '..', 'views'));
+  app.engine(
+    '.hbs',
+    engine({
+      extname: '.hbs',
+      defaultLayout: 'main',
+      layoutsDir: path.join(path.resolve(), 'server/views/layouts'),
+      partialsDir: path.join(path.resolve(), 'server/views/partials'),
+      helpers: {
+        viteAssets: registerViteHelper(),
+      },
+    }),
+  );
+  app.set('view engine', '.hbs');
+  app.set('views', path.join(path.resolve(), 'server/views'));
 }
