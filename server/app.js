@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 
 // Importar rutas de la aplicación
-import indexRouter from '#routes/index.js';
+import homeRouter from '#routes/index.js';
 import usersRouter from '#routes/users.js';
 
 // Importando la función de configuración de Hbs
@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // Registramos las rutas de la aplicación
 logger.info('Registrando rutas');
-app.use('/', indexRouter);
+app.use('/', homeRouter);
 app.use('/users', usersRouter);
 
 // Capturamos errores 404 y los enviamos al manejador de errores
